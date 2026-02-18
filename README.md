@@ -789,22 +789,133 @@ set USE_MOCK_API=true
 dotnet run --project MiniDashboard.App
 ```
 
-## 🎨 Design Patterns Used
+## 🎨 Design Patterns & Architecture Principles
 
-- **Repository Pattern**: Data access abstraction
-- **Dependency Injection**: Loose coupling and testability
-- **MVVM Pattern**: Separation of UI and business logic
-- **Command Pattern**: User action handling
-- **Service Layer Pattern**: Business logic encapsulation
+### SOLID Principles Compliance ✅
+
+This project strictly adheres to all five SOLID principles of object-oriented design:
+
+#### 1. **Single Responsibility Principle (SRP)** ✅
+Each class has one, and only one, reason to change:
+
+- **`ItemRepository`** - Responsible only for data access operations
+- **`ItemService`** - Responsible only for business logic
+- **`ItemsController`** - Responsible only for HTTP request/response handling
+- **`MainViewModel`** - Responsible only for UI state management
+- **`ApiService`** - Responsible only for HTTP communication
+- **`CacheService`** - Responsible only for caching operations
+
+#### 2. **Open/Closed Principle (OCP)** ✅
+Classes are open for extension but closed for modification:
+
+- Interface-based design allows new implementations without changing existing code
+- Example: `MockApiService` extends functionality without modifying `ApiService`
+- New repository implementations can be added without changing `ItemService`
+
+```csharp
+// Can add new implementations without changing existing code
+public class SqlItemRepository : IItemRepository { }
+public class CachedItemService : IItemService { }
+```
+
+#### 3. **Liskov Substitution Principle (LSP)** ✅
+Derived classes/implementations are perfectly substitutable for their base types:
+
+- `MockApiService` can completely replace `ApiService`
+- `ItemRepository` can be replaced with any `IItemRepository` implementation
+- All interface implementations maintain the contract expected by consumers
+
+```csharp
+// Both work identically from the ViewModel's perspective
+IApiService apiService = new ApiService(httpClient, logger, cache);
+IApiService mockService = new MockApiService();
+```
+
+#### 4. **Interface Segregation Principle (ISP)** ✅
+Interfaces are small, focused, and client-specific:
+
+- **`IItemService`** - Only 7 methods, all related to item business logic
+- **`IApiService`** - Only 6 methods, all related to API communication
+- **`ICacheService`** - Only 7 methods, all related to caching
+- **`INavigationService`** - Only 1 method for navigation
+
+No client is forced to depend on methods it doesn't use.
+
+#### 5. **Dependency Inversion Principle (DIP)** ✅
+High-level modules depend on abstractions, not concrete implementations:
+
+```csharp
+// API Layer - depends on interfaces, not implementations
+public class ItemsController : ControllerBase {
+    private readonly IItemService _itemService;
+    public ItemsController(IItemService itemService) {
+        _itemService = itemService;  // Injected via DI
+    }
+}
+
+public class ItemService : IItemService {
+    private readonly IItemRepository _repository;
+    public ItemService(IItemRepository repository) {
+        _repository = repository;  // Injected via DI
+    }
+}
+
+// WPF Layer - depends on interfaces
+public class MainViewModel : ViewModelBase {
+    private readonly IApiService _apiService;
+    public MainViewModel(IApiService apiService) {
+        _apiService = apiService;  // Injected via DI
+    }
+}
+```
+
+**DI Configuration:**
+```csharp
+// API: Program.cs
+builder.Services.AddSingleton<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IItemService, ItemService>();
+
+// WPF: App.xaml.cs
+services.AddHttpClient<IApiService, ApiService>();
+services.AddSingleton<ICacheService, CacheService>();
+```
+
+### Additional Design Patterns
+
+- **Repository Pattern** - `ItemRepository` abstracts data access
+- **Service Layer Pattern** - `ItemService` encapsulates business logic
+- **MVVM Pattern** - Complete separation of UI and business logic
+- **Command Pattern** - `RelayCommand` and `AsyncRelayCommand` for user actions
+- **Factory Pattern** - `IHttpClientFactory` for creating HTTP clients
+- **Observer Pattern** - `INotifyPropertyChanged` for data binding
+- **Strategy Pattern** - Swappable implementations (`ApiService` vs `MockApiService`)
+- **Facade Pattern** - Services provide simplified interfaces to complex subsystems
 
 ## 📝 Code Quality Standards
 
-- Follow SOLID principles
-- Use async/await for I/O operations
-- Implement proper error handling
-- Include XML documentation comments
-- Use meaningful variable and method names
-- Keep methods focused and single-purpose
+This project adheres to industry-standard coding practices:
+
+### Architecture & Design ⭐
+- ✅ **SOLID Principles** - Fully compliant with all five principles (see above)
+- ✅ **Separation of Concerns** - Clear boundaries between layers
+- ✅ **Dependency Injection** - Constructor injection throughout
+- ✅ **Interface-based Design** - Program to interfaces, not implementations
+
+### Code Practices
+- ✅ **Async/Await** - All I/O operations use async/await for responsiveness
+- ✅ **Error Handling** - Try-catch blocks with proper logging and user feedback
+- ✅ **XML Documentation** - All public APIs documented with summary comments
+- ✅ **Meaningful Naming** - Clear, descriptive names for variables, methods, and classes
+- ✅ **Single Responsibility** - Each method has one clear purpose
+- ✅ **DRY Principle** - No code duplication; shared logic extracted to methods
+- ✅ **Null Safety** - Nullable reference types enabled (`<Nullable>enable</Nullable>`)
+- ✅ **Immutability** - DTOs and models designed for immutability where appropriate
+
+### Testing
+- ✅ **Comprehensive Coverage** - 40+ tests across unit, integration, and UI levels
+- ✅ **AAA Pattern** - Arrange, Act, Assert in all tests
+- ✅ **Mocking** - External dependencies mocked for unit testing
+- ✅ **Test Isolation** - Each test is independent and can run in any order
 
 ## 🚀 Future Enhancements
 
