@@ -952,14 +952,5 @@ This project is created for demonstration purposes as part of a technical assess
 
 ---
 
-## 📞 Support
-
-For questions or issues:
-1. Check the [QUICK_START.md](QUICK_START.md) guide
-2. Review the [SETUP_SUMMARY.md](SETUP_SUMMARY.md) documentation
-3. Open an issue on GitHub
-
-**Built with ❤️ using .NET 8.0**
-
 
 
