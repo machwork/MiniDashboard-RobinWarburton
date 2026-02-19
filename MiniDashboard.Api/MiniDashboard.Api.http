@@ -1,5 +1,4 @@
-@MiniDashboard.Api_HostAddress = http://localhost:5246
-
+@MiniDashboard.Api_HostAddress = http://localhost:7044
 GET {{MiniDashboard.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
