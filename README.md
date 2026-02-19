@@ -244,7 +244,8 @@ MiniDashboard/
 4. **Run the API** (in first terminal)
    ```bash
    cd MiniDashboard.Api
-   dotnet run
+   # Start the API using the HTTPS launch profile
+   dotnet run --launch-profile "https"
    ```
    The API will be available at:
    - **HTTPS**: `https://localhost:7044`
@@ -265,6 +266,52 @@ The API is configured to run on port **7044**. This is set in:
 - `MiniDashboard.App/App.xaml.cs` (client configuration)
 
 To change the port, update both files accordingly.
+
+#### API launch profiles (launchSettings.json)
+The API project includes launch profiles for `http`, `https`, and `IIS Express` in `MiniDashboard.Api/Properties/launchSettings.json`. Use the `https` profile to run Kestrel on HTTPS (default value in this repo is `https://localhost:7044`). Example profile entries:
+
+```json
+"profiles": {
+  "http": {
+    "commandName": "Project",
+    "applicationUrl": "http://localhost:7044"
+  },
+  "https": {
+    "commandName": "Project",
+    "applicationUrl": "https://localhost:7044"
+  }
+}
+```
+
+Run the API with the HTTPS profile from the command line:
+
+```bash
+cd MiniDashboard.Api
+dotnet run --launch-profile "https"
+```
+
+If the API starts only on HTTP when running `dotnet run`, explicitly specify the profile as shown above or set the `ASPNETCORE_URLS` environment variable / `--urls` option:
+
+```bash
+# Explicit URLs
+dotnet run --urls "https://localhost:7044;http://localhost:7044"
+
+# Or set env var (PowerShell)
+$Env:ASPNETCORE_URLS = 'https://localhost:7044'
+dotnet run
+```
+
+**Trust the .NET development HTTPS certificate** (required once on your machine) to avoid SSL errors when calling the API from the client:
+
+```bash
+dotnet dev-certs https --trust
+```
+
+After trusting the cert and running the API with the `https` profile, verify the Swagger UI at:
+
+```
+https://localhost:7044/swagger
+```
 
 #### Using Mock API (Development Mode)
 If you want to run the WPF app without the API:
@@ -638,7 +685,7 @@ public void MainWindow_ShouldDisplayDataGrid_WhenLoaded()
 ### Test Coverage Summary
 
 | Component | Unit Tests | Integration Tests | UI Tests | Total |
-|-----------|-----------|-------------------|----------|-------|
+|-----------|-----------|-------------------|----------|
 | API Controllers | ✅ 5 | ✅ 6 | - | 11 |
 | Services | ✅ 8 | - | - | 8 |
 | Repositories | ✅ 5 | - | - | 5 |
@@ -951,6 +998,12 @@ This project is created for demonstration purposes as part of a technical assess
 - **Swashbuckle** - For API documentation
 
 ---
+
+
+
+
+
+
 
 
 
